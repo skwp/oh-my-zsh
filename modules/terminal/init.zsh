@@ -5,12 +5,6 @@
 #   James Cox <james@imaj.es>
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
-# Usage:
-#   To auto set the terminal window and tab titles with the current command or
-#   directory, add the following to zshrc:
-#
-#     zstyle ':omz:module:terminal' auto-title 'yes'
-#
 
 # Dumb terminals lack support.
 if [[ "$TERM" == 'dumb' ]]; then
@@ -102,7 +96,9 @@ add-zsh-hook precmd set-title-precmd
 # Sets the tab and window titles before command execution.
 function set-title-preexec {
   if zstyle -t ':omz:module:terminal' auto-title; then
-    set-title-by-command "$2"
+    if [[ "$TERM_PROGRAM" != 'Apple_Terminal' ]]; then
+      set-title-by-command "$2"
+    fi
   fi
 }
 add-zsh-hook preexec set-title-preexec

@@ -38,7 +38,7 @@
 #     zstyle ':omz:module:git' modified 'modified:%m'
 #
 #     # %p - HEAD position in relation to the nearest branch, remote, tag.
-#     zstyle ':omz:module:git:prompt' position 'position:%p'
+#     zstyle ':omz:module:git' position 'position:%p'
 #
 #     # %R - Remote name.
 #     zstyle ':omz:moduleit' remote 'remote:%R'
@@ -67,24 +67,12 @@
 # Load dependencies.
 omodload 'trap'
 
-# Gets the path to the Git directory.
-function _git-dir {
-  local git_dir="${$(git rev-parse --git-dir):A}"
-
-  if [[ -n "$git_dir" ]]; then
-    print "$git_dir"
-    return 0
-  fi
-
-  return 1
-}
-
 # Gets the Git special action (am, merge, rebase, etc.).
 # Borrowed from vcs_info and edited.
 function _git-action {
   local action=''
   local action_dir
-  local git_dir="$(_git-dir)"
+  local git_dir="$(git-dir)"
 
   for action_dir in \
     "${git_dir}/rebase-apply" \
@@ -279,8 +267,8 @@ function git-info {
   fi
 
   # Format stashed.
-  if [[ -f "$(_git-dir)/refs/stash" ]]; then
-    stashed="$(git stash list 2> /dev/null | wc -l)"
+  if [[ -f "$(git-dir)/refs/stash" ]]; then
+    stashed="$(git stash list 2> /dev/null | wc -l | awk '{print $1}')"
     zstyle -s ':omz:module:git' stashed 'stashed_format'
     zformat -f stashed_formatted "$stashed_format" "S:$stashed"
   fi
@@ -339,7 +327,7 @@ function git-info {
     # Format position.
     position="$(git describe --contains --all HEAD 2> /dev/null)"
     if [[ -n "$position" ]]; then
-      zstyle -s ':omz:module:git:prompt' position 'position_format'
+      zstyle -s ':omz:module:git' position 'position_format'
       zformat -f position_formatted "$position_format" "p:$position"
     fi
   fi
